@@ -636,7 +636,8 @@ for epoch in range(0, n_epochs):
       model.eval()
       val_loss=model.val_loss(dataloaderVal,device)
       model.train()
-      print("val MSE:",val_loss)
+      PSNR=10*np.log10(1 / np.sqrt(val_loss))
+      print("val MSE:",PSNR)
       print("need to add path to save")
     if (epoch+1)%30==0 and epoch<320:
         lr_scheduler.step()
