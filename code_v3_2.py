@@ -269,7 +269,7 @@ def calculate_ssim_torch(image1, image2):
 #load data
 
 transform = transforms.Compose([
-    transforms.Resize((256, 256)),  # Resize to a common size
+    transforms.Resize((512, 512)),  # Resize to a common size
     transforms.ToTensor()         # Convert to a PyTorch tensor
 ])
 
