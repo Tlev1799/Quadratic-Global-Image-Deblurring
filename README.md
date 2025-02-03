@@ -31,7 +31,7 @@ Since blurring is usually caused by the same noise in the entire picture (phone 
 
 ### Training
 First, train the model with `deblurring.py` file. Make sure you downloaded the Gopro dataset from:
-[Deblurring on GoPro]([https://paperswithcode.com/sota/deblurring-on-gopro]).
+[Deblurring on GoPro](https://paperswithcode.com/sota/deblurring-on-gopro).
 
 Update the paths to the dataset and path to save the trained models, inside the `deblurring.py` file.
 
