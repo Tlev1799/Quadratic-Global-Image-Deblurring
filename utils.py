@@ -1,6 +1,11 @@
 import torch
+from torch.utils.data import Dataset
+import torchvision.transforms as transforms
 import torch.nn.functional as F
+from PIL import Image
 from math import pi
+
+import os
 
 
 def rgb_to_xyz(image: torch.Tensor) -> torch.Tensor:
@@ -208,3 +213,63 @@ def calculate_ssim_torch(image1, image2):
         image2 = image2.unsqueeze(0)
 
     return ssim(image1, image2)
+
+def calculate_psnr_torch(mse_loss):
+    """
+    Assuming values in images mse was calculate from are in range [0, 1]
+    """
+    if mse_loss == 0:
+        return torch.tensor(float("inf"))
+
+    return 10*torch.log10(1/mse_loss)
+
+def denormalize(img, real, targ):
+    # Denormalize from [0, 1] back to [0, 255]
+    img = img * 255.0
+    real = real * 255.0
+    targ = targ * 255.0
+
+    return img, real, targ
+
+def normalize(img, real, targ):
+    # Ensure correct shape: (B, C, H, W)
+    if img.shape[-1] == 3:  # If NHWC, convert to NCHW
+        img = img.permute(0, 3, 1, 2)
+        real = real.permute(0, 3, 1, 2)
+        targ = targ.permute(0, 3, 1, 2)
+
+    # Normalize to the range [0, 1] assuming images in range [0, 255]
+    img = img / 255.0
+    real = real / 255.0
+    targ = targ / 255.0
+
+    return img, real, targ
+
+class GoProDataset(Dataset):
+    def __init__(self, root_dir, split='train', transform=None, resize=(256, 256)):
+        self.blur_dir = os.path.join(root_dir, split, 'blur')
+        self.sharp_dir = os.path.join(root_dir, split, 'sharp')
+        self.image_filenames = sorted(os.listdir(self.blur_dir))
+        self.transform = transform
+        self.resize = resize
+        self.resize_transform = transforms.Resize(resize)
+
+    def __len__(self):
+        return len(self.image_filenames)
+
+    def __getitem__(self, idx):
+        blur_path = os.path.join(self.blur_dir, self.image_filenames[idx])
+        sharp_path = os.path.join(self.sharp_dir, self.image_filenames[idx])
+
+        blur_image = Image.open(blur_path).convert("RGB")
+        sharp_image = Image.open(sharp_path).convert("RGB")
+
+        # Resize the blurred image.
+        resized_blur_image = self.resize_transform(blur_image)
+
+        if self.transform:
+            blur_image = self.transform(blur_image)
+            resized_blur_image = self.transform(resized_blur_image)
+            sharp_image = self.transform(sharp_image)
+
+        return blur_image, resized_blur_image, sharp_image

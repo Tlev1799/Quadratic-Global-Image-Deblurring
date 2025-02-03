@@ -1,11 +1,11 @@
-from deblurring import GoProDataset, Transformer, normalize, denormalize
+from deblurring import Transformer
+from utils import GoProDataset, normalize, denormalize
 import torch
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 import random
 import matplotlib.pyplot as plt
 from torchvision.utils import save_image
-
 import os
 
 batch_size = 20
@@ -25,8 +25,8 @@ test_dataset = GoProDataset(dataset_path, split='test', transform=transform)
 test_loader = DataLoader(test_dataset, batch_size=20, shuffle=False, num_workers=4, drop_last=True)
 
 # Load trained model.
-model = Transformer(n_batch=batch_size).cuda() # Replace with your actual model class
-model.load_state_dict(torch.load("/mnt/d/deblurring/models/best_model"))
+model = Transformer().cuda() # Replace with your actual model class
+model.load_state_dict(torch.load("/mnt/d/deblurring/models/best/best_psnr_model.pth"))
 model.to(device)
 model.eval()
 
@@ -52,18 +52,18 @@ for i, batch_data in enumerate(test_loader):
     sharp_img = sharp_img.to(device)
 
 
-    blur_img, resize_blur_img, sharp_img = normalize(blur_img, resize_blur_img, sharp_img)
-    print(blur_img.shape)
+    # blur_img, resize_blur_img, sharp_img = normalize(blur_img, resize_blur_img, sharp_img)
+    # print(blur_img.shape)
 
     with torch.no_grad():
         output = model(resize_blur_img, blur_img)
 
     print(f"Used model for sample {i}")
 
-    blur_img = denormalize(blur_img)
-    resize_blur_img = denormalize(resize_blur_img)
-    output = denormalize(output)
-    sharp_img = denormalize(sharp_img)
+    # blur_img = denormalize(blur_img)
+    # resize_blur_img = denormalize(resize_blur_img)
+    # output = denormalize(output)
+    # sharp_img = denormalize(sharp_img)
 
     print(blur_img.shape)
 
