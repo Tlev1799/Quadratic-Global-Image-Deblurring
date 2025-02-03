@@ -2,7 +2,7 @@
 Learning a global transformation for deblurring images.
 
 Based on the paper:
-Yoav Chai, Raja Giryes, Lior Wolf [Supervised and Unsupervised Learning of Parameterized Color Enhancement]([https://arxiv.org/abs/2001.05843])
+Yoav Chai, Raja Giryes, Lior Wolf [Supervised and Unsupervised Learning of Parameterized Color Enhancement](https://arxiv.org/abs/2001.05843)
 
 ## Background
 The problem of deblurring images is not new; There are several architectures that have proved efficient in this regard, some of them are UNET based (for example UAE, which is UNET with attention), some diffusion models, and there are many more.
