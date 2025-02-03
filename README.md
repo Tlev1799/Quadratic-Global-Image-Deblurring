@@ -45,8 +45,8 @@ Run `python test_model.py`, again no parameters required.
 
 
 ## References
-* Yoav Chai, Raja Giryes, Lior Wolf [Supervised and Unsupervised Learning of Parameterized Color Enhancement]([https://arxiv.org/abs/2001.05843])
-* [Deblurring on GoPro]([https://paperswithcode.com/sota/deblurring-on-gopro])
+* Yoav Chai, Raja Giryes, Lior Wolf [Supervised and Unsupervised Learning of Parameterized Color Enhancement](https://arxiv.org/abs/2001.05843)
+* [Deblurring on GoPro](https://paperswithcode.com/sota/deblurring-on-gopro)
 
 
 
