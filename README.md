@@ -2,9 +2,6 @@
 Learning a global transformation for deblurring images.
 
 Based on the paper:
-
-Supervised and Unsupervised Learning of Parameterized Color Enhancement https://arxiv.org/abs/2001.05843
-
 Yoav Chai, Raja Giryes, Lior Wolf [Supervised and Unsupervised Learning of Parameterized Color Enhancement]([https://arxiv.org/abs/2001.05843])
 
 ## Background
