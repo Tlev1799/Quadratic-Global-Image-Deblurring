@@ -136,22 +136,31 @@ import numpy as np
 #         return val_loss, val_PSNR_loss, val_SSIM_loss
 
 class Transformer(nn.Module):
-    def __init__(self, Norm=nn.InstanceNorm2d, Act=nn.ReLU(True), in_features=64, in_channels=2):
+    def __init__(self, Norm=nn.InstanceNorm2d, Act=nn.ReLU(True), in_features=512, in_channels=2):
         super(Transformer, self).__init__()
 
-        # Sequential layers for the down-sampled image (256x256) to output a (45x2) transformation vector (for S and V channels)
+        # Convolutional feature extractor
         self.feature_extractor = nn.Sequential(
-            nn.Conv2d(in_channels, in_features, kernel_size=5, stride=2, padding=2),
+            nn.Conv2d(in_channels, in_features // 4, kernel_size=5, stride=2, padding=2),  # (2 -> 128)
             Act,
-            nn.Conv2d(in_features, in_features * 2, kernel_size=3, stride=2, padding=1),
-            Norm(in_features * 2),
+            nn.Conv2d(in_features // 4, in_features // 2, kernel_size=3, stride=2, padding=1),  # (128 -> 256)
+            Norm(in_features // 2),
             Act,
-            nn.AdaptiveAvgPool2d((6, 6)),
-            nn.Flatten(),
-            nn.Linear(in_features * 2 * 6 * 6, 128),
+            nn.Conv2d(in_features // 2, in_features, kernel_size=3, stride=2, padding=1),  # (256 -> 512)
+            Norm(in_features),
             Act,
-            nn.Linear(128, 92),  # Output 90 features (45 parameters for S and V, 2 for each)
-            nn.Unflatten(1, (46, 2))  # Output shape: (batch, 45, 2)
+            nn.AdaptiveAvgPool2d((6, 6)),  # Output size: (512, 6, 6)
+            nn.Flatten()
+        )
+
+        # Fully connected layers
+        self.fc = nn.Sequential(
+            nn.Linear(in_features * 6 * 6, 4096),  # (512*6*6 -> 4096)
+            Act,
+            nn.Linear(4096, 1024),  # (4096 -> 1024)
+            Act,
+            nn.Linear(1024, 92),  # (1024 -> 92)
+            nn.Unflatten(1, (46, 2))  # Output shape: (batch, 46, 2)
         )
 
     def forward(self, x, y):
@@ -171,7 +180,7 @@ class Transformer(nn.Module):
 
         # Keep the Hue (H) channels as they are
         # Get transformation parameters from the down-sampled image y (using the S and V channels)
-        h_theta = self.feature_extractor(torch.cat([y_s, y_v], dim=1))  # Shape: (batch, 46, 2)
+        h_theta = self.fc(self.feature_extractor(torch.cat([y_s, y_v], dim=1)))  # Shape: (batch, 46, 2)
 
         # Add a column of 1's to h_theta to ensure H channel remains unchanged
         ones = torch.ones_like(h_theta[:, :, :1])  # Shape: (batch, 46, 1)
